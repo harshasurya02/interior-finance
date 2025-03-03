@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Transaction } from "@/types/project";
-import { getProjectTransactions } from "@/lib/actions/project-details";
+// import { getProjectTransactions } from "@/lib/actions/project-details";
 
 interface TransactionTimelineProps {
   // projectId: string;

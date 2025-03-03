@@ -23,7 +23,8 @@ export async function addProject(project: ProjectInsertion) {
   console.log("userid:", userId);
   const { error } = await supabase
     .from("site")
-    .insert([{ ...project, user_id: userId }]);
+    .insert([{ ...project, user_id: userId }])
+    .select();
 
   if (error) {
     console.log("An error occured while inserting project =>", error);

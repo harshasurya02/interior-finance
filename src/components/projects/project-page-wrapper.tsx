@@ -5,6 +5,7 @@ import ProjectGrid from "@/components/projects/project-grid";
 import { Button } from "@/components/ui/button";
 import ProjectModal from "@/components/projects/project-modal";
 import type { Project } from "@/types/project";
+import { useRouter } from "next/navigation";
 
 export default function ProjectPageWrapper({
   projects,
@@ -16,9 +17,12 @@ export default function ProjectPageWrapper({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
+  const router = useRouter();
+
   const handleAddProject = () => {
     setEditingProject(null);
     setIsModalOpen(true);
+    router.refresh();
   };
 
   const handleEditProject = (project: Project) => {

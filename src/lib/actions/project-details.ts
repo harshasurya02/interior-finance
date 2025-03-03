@@ -1,6 +1,6 @@
-// @ts-nocheck
+"use server";
 import { createClient } from "../supabase/server";
-import { Transaction, Expense, Incoming, Project } from "@/types/project"; // Assuming you have these types defined
+import { Transaction, Expense, Incoming, Project } from "@/types/project";
 
 export async function getExpenses(site_id: string): Promise<Expense[] | null> {
   const supabase = await createClient();
@@ -17,7 +17,7 @@ export async function getExpenses(site_id: string): Promise<Expense[] | null> {
     return null;
   }
 
-  return data;
+  return data as any[];
 }
 
 export async function getAmountReceived(
@@ -35,13 +35,13 @@ export async function getAmountReceived(
     return null;
   }
 
-  return data;
+  return data as any[];
 }
 
-export function mapTransactions(
+export async function mapTransactions(
   amountReceived: Incoming[] | null,
   expenses: Expense[] | null
-): Transaction[] {
+): Promise<Transaction[]> {
   const incomeTransactions: Transaction[] =
     amountReceived?.map((entry) => ({
       id: entry.id,
@@ -104,4 +104,105 @@ export async function getProjectDetails(id: string) {
     .returns<Project[]>();
 
   return project.data?.[0];
+}
+
+export async function getExpenseTypeOptions() {
+  const supabase = await createClient();
+
+  const expenseTypeOptions = await supabase
+    .from("expenses_type")
+    .select("id, expenses_type_name");
+
+  return expenseTypeOptions.data || [];
+}
+
+export async function addIncome(formData: {
+  projectId: string;
+  amount: number;
+  // date: string;
+  // description: string;
+  remarks?: string;
+}) {
+  const supabase = await createClient();
+
+  try {
+    // Insert the expense into the database
+    const { data, error } = await supabase
+      .from("incoming")
+      .insert([
+        {
+          site_id: formData.projectId,
+          amount: formData.amount,
+          // expenses_type_id: formData.expenseType,
+          remarks: formData.remarks,
+        },
+      ])
+      .select();
+
+    // Check for errors from Supabase
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    // Log the inserted data for debugging
+    console.log("Expense added successfully:", data);
+
+    // Return the inserted data
+    return data;
+  } catch (err) {
+    // Handle any unexpected errors
+    console.error("Error adding income:", err);
+
+    // Re-throw the error to allow the caller to handle it
+    throw new Error(
+      `Failed to add income: ${
+        err instanceof Error ? err.message : "Unknown error"
+      }`
+    );
+  }
+}
+
+export async function addExpense(formData: {
+  projectId: string;
+  amount: number;
+  remarks?: string;
+  expenseType: string;
+}) {
+  const supabase = await createClient();
+
+  try {
+    // Insert the expense into the database
+    const { data, error } = await supabase
+      .from("expenses")
+      .insert([
+        {
+          site_id: formData.projectId,
+          amount: formData.amount,
+          expense_type_id: formData.expenseType,
+          remarks: formData.remarks,
+        },
+      ])
+      .select();
+
+    // Check for errors from Supabase
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    // Log the inserted data for debugging
+    console.log("Expense added successfully:", data);
+
+    // Return the inserted data
+    return data;
+  } catch (err) {
+    // Handle any unexpected errors
+    console.error("Error adding expense:", err);
+
+    // Re-throw the error to allow the caller to handle it
+    throw new Error(
+      `Failed to add expense: ${
+        err instanceof Error ? err.message : "Unknown error"
+      }`
+    );
+  }
 }

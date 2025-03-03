@@ -24,6 +24,7 @@ import {
 import type { Project } from "@/types/project";
 import { addProject, editProject } from "@/lib/actions/project";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 // import { addProject, updateProject } from "@/lib/projects";
 
 const projectSchema = z.object({
@@ -67,6 +68,8 @@ export default function ProjectModal({
     },
   });
 
+  const router = useRouter();
+
   useEffect(() => {
     if (project) {
       reset(project);
@@ -90,6 +93,7 @@ export default function ProjectModal({
       await addProject(data);
     }
     onClose();
+    router.refresh();
   };
 
   return (

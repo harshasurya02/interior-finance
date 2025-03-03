@@ -31,6 +31,7 @@ export async function addProject(project: ProjectInsertion) {
     return;
   }
   console.log("Project inserted successfully");
+  
   return "Project inserted successfully";
 }
 

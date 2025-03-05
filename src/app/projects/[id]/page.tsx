@@ -12,14 +12,20 @@ interface ProjectPageProps {
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  const project = await getProjectDetails(id);
+  // const project = await getProjectDetails(id);
+
+  const [project, transactions, expenseTypeOptions] = await Promise.all([
+    getProjectDetails(id),
+    getProjectTransactions(id),
+    getExpenseTypeOptions(),
+  ]);
 
   if (!project) {
     notFound();
   }
 
-  const transactions = await getProjectTransactions(id);
-  const expenseTypeOptions = await getExpenseTypeOptions();
+  // const transactions = await getProjectTransactions(id);
+  // const expenseTypeOptions = await getExpenseTypeOptions();
   return (
     <ProjectDetailsWrapper
       transactions={transactions}

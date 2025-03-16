@@ -1,21 +1,18 @@
 "use server";
 
-// import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@/lib/supabase/server";
 
 export async function login(formData: { email: string; password: string }) {
-  // console.log("login data: ", formData);
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword(formData);
 
   if (error) {
-    console.log(error);
-    redirect("/error");
+    // Return the error message instead of redirecting
+    return { error: error.message };
   }
 
-  // revalidatePath("/", "layout");
+  // Redirect to the projects page on success
   redirect("/projects");
 }

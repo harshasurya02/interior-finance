@@ -5,7 +5,7 @@ export interface Project {
   incoming: any;
   initial_quotation: any;
   final_quotation: any;
-  site_status: SiteStatus;
+  site_status: any;
 }
 
 export interface SiteStatus {

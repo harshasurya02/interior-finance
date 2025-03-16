@@ -1,7 +1,15 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl;
+
+  if (pathname === "/projects" && !searchParams.toString()) {
+    return NextResponse.redirect(
+      new URL("/projects?page=1&limit=10", request.url)
+    );
+  }
+
   return await updateSession(request);
 }
 

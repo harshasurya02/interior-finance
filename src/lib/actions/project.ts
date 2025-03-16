@@ -2,72 +2,90 @@
 import { createClient } from "@/lib/supabase/server";
 import { Project } from "@/types/project";
 
-export async function getAllProjects() {
+export async function getAllProjects(
+  page: number,
+  limit: number
+): Promise<Project[]> {
   const supabase = await createClient();
   const userId = (await supabase.auth.getUser()).data.user?.id;
 
-  const projects = await supabase
+  const offset = (page - 1) * limit;
+
+  const { data, error } = await supabase
     .from("site")
     .select(
       `id, site_name, expenses, incoming, initial_quotation, final_quotation, site_status(site_status_name)`
     )
     .eq("user_id", userId)
-    .returns<Project[]>();
+    .range(offset, offset + limit - 1) // Pagination using range
+    .order("created_at", { ascending: false });
 
-  return projects.data;
+  if (error) {
+    console.error("Error fetching projects:", error);
+    return [];
+  }
+
+  return data;
 }
 
 export async function addProject(project: ProjectInsertion) {
   const supabase = await createClient();
   const userId = (await supabase.auth.getUser()).data.user?.id;
-  console.log("userid:", userId);
-  const { error } = await supabase
-    .from("site")
-    .insert([{ ...project, user_id: userId }])
-    .select();
 
-  if (error) {
-    console.log("An error occured while inserting project =>", error);
-    return;
+  if (!userId) {
+    return { error: "User ID is undefined. User might not be logged in." };
   }
-  console.log("Project inserted successfully");
-  
-  return "Project inserted successfully";
+
+  try {
+    const { data, error } = await supabase
+      .from("site")
+      .insert([{ ...project, user_id: userId }])
+      .select();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { data };
+  } catch (error) {
+    console.error("An error occurred while adding the project:", error);
+    return { error: "An unexpected error occurred. Please try again." };
+  }
 }
 
 export async function editProject(
   project: ProjectInsertion,
   projectId: string
 ) {
-  // console.log(project, projectId);
   const supabase = await createClient();
   const userId = (await supabase.auth.getUser()).data.user?.id;
 
-  console.log("userid:", userId);
-
   if (!userId) {
-    console.log("User ID is undefined. User might not be logged in.");
-    return;
+    return { error: "User ID is undefined. User might not be logged in." };
   }
 
-  const { data, error } = await supabase
-    .from("site")
-    .update({
-      site_name: project.site_name,
-      initial_quotation: project.initial_quotation,
-      final_quotation: project.final_quotation,
-      site_status_id: project.site_status_id,
-      user_id: userId,
-    })
-    .eq("id", projectId)
-    .select();
-  console.log(data, error);
-  if (error) {
-    console.log("An error occured while inserting project =>", error);
-    return;
+  try {
+    const { data, error } = await supabase
+      .from("site")
+      .update({
+        site_name: project.site_name,
+        initial_quotation: project.initial_quotation,
+        final_quotation: project.final_quotation,
+        site_status_id: project.site_status_id,
+        user_id: userId,
+      })
+      .eq("id", projectId)
+      .select();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { data };
+  } catch (error) {
+    console.error("An error occurred while editing the project:", error);
+    return { error: "An unexpected error occurred. Please try again." };
   }
-  console.log("Project edited successfully");
-  return data;
 }
 
 export async function getProjectStatusOptions() {

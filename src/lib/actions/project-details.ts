@@ -206,3 +206,37 @@ export async function addExpense(formData: {
     );
   }
 }
+// export async function editProject(
+//   project: ProjectInsertion,
+//   projectId: string
+// ) {
+//   const supabase = await createClient();
+//   const userId = (await supabase.auth.getUser()).data.user?.id;
+
+//   if (!userId) {
+//     return { error: "User ID is undefined. User might not be logged in." };
+//   }
+
+//   try {
+//     const { data, error } = await supabase
+//       .from("site")
+//       .update({
+//         site_name: project.site_name,
+//         initial_quotation: project.initial_quotation,
+//         final_quotation: project.final_quotation,
+//         site_status_id: project.site_status_id,
+//         user_id: userId,
+//       })
+//       .eq("id", projectId)
+//       .select();
+
+//     if (error) {
+//       return { error: error.message };
+//     }
+
+//     return { data };
+//   } catch (error) {
+//     console.error("An error occurred while editing the project:", error);
+//     return { error: "An unexpected error occurred. Please try again." };
+//   }
+// }

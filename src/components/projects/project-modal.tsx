@@ -23,9 +23,7 @@ import {
 } from "@/components/ui/select";
 import type { Project } from "@/types/project";
 import { addProject, editProject } from "@/lib/actions/project";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-// import { addProject, updateProject } from "@/lib/projects";
 
 const projectSchema = z.object({
   site_name: z.string().min(1),
@@ -68,6 +66,7 @@ export default function ProjectModal({
     },
   });
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error messages
   const router = useRouter();
 
   useEffect(() => {
@@ -86,14 +85,26 @@ export default function ProjectModal({
   }, [project, reset]);
 
   const onSubmit = async (data: ProjectFormData) => {
-    console.log(data);
-    if (project) {
-      await editProject(data, project.id);
-    } else {
-      await addProject(data);
+    setErrorMessage(null); // Clear previous error messages
+
+    try {
+      let result;
+      if (project) {
+        result = await editProject(data, project.id);
+      } else {
+        result = await addProject(data);
+      }
+
+      if (result?.error) {
+        setErrorMessage(result.error); // Set error message if any
+      } else {
+        onClose();
+        router.refresh(); // Refresh the page to reflect changes
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
     }
-    onClose();
-    router.refresh();
   };
 
   return (
@@ -105,6 +116,11 @@ export default function ProjectModal({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Display error message if any */}
+          {errorMessage && (
+            <div className="text-red-500 text-sm">{errorMessage}</div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="site_name">Project Name</Label>
             <Controller
@@ -124,6 +140,7 @@ export default function ProjectModal({
               <span className="text-red-500">{errors.site_name.message}</span>
             )}
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="site_status_id">Status</Label>
             <Controller
@@ -153,6 +170,7 @@ export default function ProjectModal({
               </span>
             )}
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="initial_quotation">Initial Quotation</Label>
             <Controller
@@ -165,7 +183,6 @@ export default function ProjectModal({
                   id="initial_quotation"
                   type="number"
                   onChange={(e) => {
-                    // Convert the string value to a number
                     const value = parseFloat(e.target.value);
                     field.onChange(value);
                   }}
@@ -179,6 +196,7 @@ export default function ProjectModal({
               </span>
             )}
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="final_quotation">Final Quotation (Optional)</Label>
             <Controller
@@ -191,7 +209,6 @@ export default function ProjectModal({
                   id="final_quotation"
                   type="number"
                   onChange={(e) => {
-                    // Convert the string value to a number
                     const value = parseFloat(e.target.value);
                     field.onChange(value);
                   }}
@@ -204,11 +221,19 @@ export default function ProjectModal({
               </span>
             )}
           </div>
+
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="cursor-pointer"
+            >
               Cancel
             </Button>
-            <Button type="submit">{project ? "Update" : "Add"} Project</Button>
+            <Button type="submit" className="cursor-pointer">
+              {project ? "Update" : "Add"} Project
+            </Button>
           </div>
         </form>
       </DialogContent>

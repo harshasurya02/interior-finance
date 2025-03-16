@@ -3,6 +3,7 @@ import {
   ArrowUpIcon,
   ClockIcon,
   CheckCircleIcon,
+  Loader2, // Import the loading icon from Lucide
 } from "lucide-react";
 import {
   Card,
@@ -24,20 +25,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
+import { memo, useState } from "react";
 
 interface ProjectCardProps {
   project: Project;
   onEdit: (project: Project) => void;
 }
 
-export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
+const ProjectCard = memo(({ project, onEdit }: ProjectCardProps) => {
+  const [loading, setLoading] = useState(false); // State for loading
   const {
     site_name,
     initial_quotation,
     final_quotation,
     site_status,
     incoming,
-    // amountReceived,
     expenses,
   } = project;
 
@@ -48,8 +50,13 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
     Math.round((incoming / final_quotation) * 100)
   );
 
+  const handleEdit = () => {
+    setLoading(true); // Set loading to true when editing
+    onEdit(project);
+    setLoading(false); // Reset loading after edit action
+  };
+
   return (
-    // <Link href={`/projects/${project.id}`}>
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
@@ -70,18 +77,21 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
           </Badge>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => {
-                  // return null;
-                  onEdit(project);
-                }}
+                onClick={handleEdit}
+                disabled={loading}
+                className="cursor-pointer"
               >
-                Edit
+                {loading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> // Show loading icon
+                ) : (
+                  "Edit"
+                )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -136,13 +146,18 @@ export default function ProjectCard({ project, onEdit }: ProjectCardProps) {
           </div>
           <br />
           <Link href={`/projects/${project.id}`} className="w-full">
-            <Button variant="outline" size="sm" className="w-full">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full cursor-pointer"
+            >
               View Details
             </Button>
           </Link>
         </div>
       </CardFooter>
     </Card>
-    // </Link>
   );
-}
+});
+
+export default ProjectCard;

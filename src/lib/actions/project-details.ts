@@ -206,37 +206,119 @@ export async function addExpense(formData: {
     );
   }
 }
-// export async function editProject(
-//   project: ProjectInsertion,
-//   projectId: string
-// ) {
-//   const supabase = await createClient();
-//   const userId = (await supabase.auth.getUser()).data.user?.id;
 
-//   if (!userId) {
-//     return { error: "User ID is undefined. User might not be logged in." };
-//   }
+export async function updateIncome(formData: {
+  id: string;
+  amount: number;
+  remarks?: string;
+}) {
+  const supabase = await createClient();
 
-//   try {
-//     const { data, error } = await supabase
-//       .from("site")
-//       .update({
-//         site_name: project.site_name,
-//         initial_quotation: project.initial_quotation,
-//         final_quotation: project.final_quotation,
-//         site_status_id: project.site_status_id,
-//         user_id: userId,
-//       })
-//       .eq("id", projectId)
-//       .select();
+  try {
+    const { data, error } = await supabase
+      .from("incoming")
+      .update({
+        amount: formData.amount,
+        remarks: formData.remarks,
+      })
+      .eq("id", formData.id)
+      .select();
 
-//     if (error) {
-//       return { error: error.message };
-//     }
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
 
-//     return { data };
-//   } catch (error) {
-//     console.error("An error occurred while editing the project:", error);
-//     return { error: "An unexpected error occurred. Please try again." };
-//   }
-// }
+    console.log("Income updated successfully:", data);
+    return data;
+  } catch (err) {
+    console.error("Error updating income:", err);
+    throw new Error(
+      `Failed to update income: ${
+        err instanceof Error ? err.message : "Unknown error"
+      }`
+    );
+  }
+}
+
+export async function updateExpense(formData: {
+  id: string;
+  amount: number;
+  remarks?: string;
+  expenseType: string;
+}) {
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("expenses")
+      .update({
+        amount: formData.amount,
+        remarks: formData.remarks,
+        expense_type_id: formData.expenseType,
+      })
+      .eq("id", formData.id)
+      .select();
+
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    console.log("Expense updated successfully:", data);
+    return data;
+  } catch (err) {
+    console.error("Error updating expense:", err);
+    throw new Error(
+      `Failed to update expense: ${
+        err instanceof Error ? err.message : "Unknown error"
+      }`
+    );
+  }
+}
+
+export async function deleteIncome(transactionId: string) {
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase
+      .from("incoming")
+      .delete()
+      .eq("id", transactionId);
+
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    console.log("Income deleted successfully");
+  } catch (err) {
+    console.error("Error deleting income:", err);
+    throw new Error(
+      `Failed to delete income: ${
+        err instanceof Error ? err.message : "Unknown error"
+      }`
+    );
+  }
+}
+
+export async function deleteExpense(transactionId: string) {
+  const supabase = await createClient();
+
+  try {
+    const { error } = await supabase
+      .from("expenses")
+      .delete()
+      .eq("id", transactionId);
+
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    console.log("Expense deleted successfully");
+  } catch (err) {
+    console.error("Error deleting expense:", err);
+    throw new Error(
+      `Failed to delete expense: ${
+        err instanceof Error ? err.message : "Unknown error"
+      }`
+    );
+  }
+}

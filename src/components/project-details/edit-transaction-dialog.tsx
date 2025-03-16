@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,42 +21,40 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { addIncome, addExpense } from "@/lib/actions/project-details"; // Import separate functions for income and expense
+import { updateIncome, updateExpense } from "@/lib/actions/project-details";
 import { useRouter } from "next/navigation";
+import { Transaction } from "@/types/project";
 
-// Define the schema using zod
 const transactionSchema = z.object({
   type: z.enum(["income", "expense"]),
   amount: z
     .string()
     .min(1, "Amount is required")
     .regex(/^\d+(\.\d{1,2})?$/, "Invalid amount"),
-  //   date: z.string().min(1, "Date is required"),
-  //   description: z.string().min(1, "Description is required"),
   remarks: z.string().optional(),
   expenseType: z.string().optional(),
 });
 
 type TransactionFormData = z.infer<typeof transactionSchema>;
 
-interface TransactionDialogProps {
+interface EditTransactionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  projectId: string;
-  // onTransactionAdded: () => void;
+  transaction: Transaction;
+  onTransactionUpdated: () => void;
   expenseTypeOptions: {
     id: any;
     expenses_type_name: any;
   }[];
 }
 
-export default function TransactionDialog({
+export default function EditTransactionDialog({
   isOpen,
   onClose,
-  projectId,
-  // onTransactionAdded,
+  transaction,
+  onTransactionUpdated,
   expenseTypeOptions,
-}: TransactionDialogProps) {
+}: EditTransactionDialogProps) {
   const {
     control,
     handleSubmit,
@@ -65,50 +63,42 @@ export default function TransactionDialog({
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
-      type: "income",
-      amount: "",
-      //   date: "",
-      //   description: "",
-      remarks: "",
-      expenseType: "",
+      type: transaction.type,
+      amount: transaction.amount.toString(),
+      remarks: transaction.remarks,
+      expenseType: transaction.expenseType || "",
     },
   });
+
   const router = useRouter();
 
   const onSubmit = async (data: TransactionFormData) => {
     const transactionData = {
-      projectId,
+      id: transaction.id,
       amount: Number.parseFloat(data.amount),
-      //   date: data.date,
-      //   description: data.description,
       remarks: data.remarks,
     };
 
     if (data.type === "income") {
-      // Call the function for income
-      await addIncome(transactionData);
-      onClose(); // Close the dialog
-      reset(); // Reset the form
-      router.refresh();
+      await updateIncome(transactionData);
     } else if (data.type === "expense") {
-      // Call the function for expense
-      await addExpense({
+      await updateExpense({
         ...transactionData,
-        expenseType: data.expenseType || "", // Include expenseType for expenses
+        expenseType: data.expenseType || "",
       });
-      onClose(); // Close the dialog
-      reset(); // Reset the form
-      router.refresh();
     }
 
-    // onTransactionAdded(); // Notify parent component
+    onTransactionUpdated();
+    onClose();
+    reset();
+    router.refresh();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Transaction</DialogTitle>
+          <DialogTitle>Edit Transaction</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
@@ -186,29 +176,6 @@ export default function TransactionDialog({
               <p className="text-red-500">{errors.amount.message}</p>
             )}
           </div>
-          {/* <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
-            <Controller
-              name="date"
-              control={control}
-              render={({ field }) => <Input id="date" type="date" {...field} />}
-            />
-            {errors.date && (
-              <p className="text-red-500">{errors.date.message}</p>
-            )}
-          </div> */}
-          {/* <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => <Input id="description" {...field} />}
-            />
-            {errors.description && (
-              <p className="text-red-500">{errors.description.message}</p>
-            )}
-          </div> */}
-
           <div className="space-y-2">
             <Label htmlFor="remarks">Remarks (Optional)</Label>
             <Controller
@@ -224,7 +191,7 @@ export default function TransactionDialog({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Add Transaction</Button>
+            <Button type="submit">Save Changes</Button>
           </div>
         </form>
       </DialogContent>

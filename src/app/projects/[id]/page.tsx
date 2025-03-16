@@ -20,6 +20,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     getExpenseTypeOptions(),
   ]);
 
+  console.log(project, transactions);
+
   if (!project) {
     notFound();
   }

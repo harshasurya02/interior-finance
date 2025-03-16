@@ -61,6 +61,7 @@ export default function ProjectDetailsWrapper({
             <TransactionTimeline
               // projectId={id}
               transactions={transactions}
+              expenseTypeOptions={expenseTypeOptions}
             />
           </div>
 
@@ -72,7 +73,7 @@ export default function ProjectDetailsWrapper({
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
           projectId={id}
-          onTransactionAdded={handleTransactionAdded}
+          // onTransactionAdded={handleTransactionAdded}
           expenseTypeOptions={expenseTypeOptions}
         />
       </div>

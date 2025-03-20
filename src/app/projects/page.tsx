@@ -1,7 +1,7 @@
 import ProjectPageWrapper from "@/components/projects/project-page-wrapper";
 import { getAllProjects, getProjectStatusOptions } from "@/lib/actions/project";
 
-export const revalidate = 1800;
+export const revalidate = 30;
 
 export default async function ProjectsPage({
   searchParams,

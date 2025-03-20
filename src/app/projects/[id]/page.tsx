@@ -6,11 +6,13 @@ import {
 } from "@/lib/actions/project-details";
 import ProjectDetailsWrapper from "@/components/project-details/project-details-wrapper";
 
+export const revalidate = 30;
+
 interface ProjectPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const { id } = await params;
   // const project = await getProjectDetails(id);
 

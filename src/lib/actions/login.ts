@@ -16,3 +16,10 @@ export async function login(formData: { email: string; password: string }) {
   // Redirect to the projects page on success
   redirect("/projects");
 }
+
+
+export async function logout() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}

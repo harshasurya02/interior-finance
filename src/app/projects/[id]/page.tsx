@@ -22,7 +22,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
     getExpenseTypeOptions(),
   ]);
 
-  console.log(project, transactions);
+  // console.log(project, transactions);
 
   if (!project) {
     notFound();

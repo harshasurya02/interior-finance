@@ -11,7 +11,7 @@ export async function getExpenses(site_id: string): Promise<Expense[] | null> {
       "id, remarks, expenses_type(expenses_type_name), site(site_name), created_at, amount"
     )
     .eq("site_id", site_id);
-  console.log(data);
+  // console.log(data);
   if (error) {
     console.error("Error fetching expenses:", error);
     return null;
@@ -145,7 +145,9 @@ export async function addIncome(formData: {
     }
 
     // Log the inserted data for debugging
-    console.log("Expense added successfully:", data);
+    console.log("Expense added successfully:"
+      // , data
+    );
 
     // Return the inserted data
     return data;

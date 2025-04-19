@@ -7,7 +7,7 @@ import ProjectModal from "@/components/projects/project-modal";
 import type { Project } from "@/types/project";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-// import { useRouter } from "next/navigation";
+import { logout } from "@/lib/actions/logout";
 
 export default function ProjectPageWrapper({
   projects,
@@ -46,11 +46,18 @@ export default function ProjectPageWrapper({
     router.push(`/projects?page=${page}&limit=${limit}`);
   };
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Project Finance Tracker</h1>
-        <Button onClick={handleAddProject}>Add New Project</Button>
+        <div className="flex gap-2">
+          <Button onClick={handleAddProject}>Add New Project</Button>
+          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        </div>
       </div>
       <Suspense fallback={<div>Loading projects...</div>}>
         <ProjectGrid

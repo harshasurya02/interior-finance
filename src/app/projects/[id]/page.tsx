@@ -5,6 +5,7 @@ import {
   getProjectTransactions,
 } from "@/lib/actions/project-details";
 import ProjectDetailsWrapper from "@/components/project-details/project-details-wrapper";
+import { getProjectAttachments } from "@/lib/actions/attachment";
 
 export const revalidate = 30;
 
@@ -12,30 +13,28 @@ interface ProjectPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ProjectDetailPage({ params }: ProjectPageProps) {
-  const { id } = await params;
-  // const project = await getProjectDetails(id);
+export default async function ProjectPage({
+  params,
+}: {
+  params:  Promise<{ id: string }>;
+}) {
 
-  const [project, transactions, expenseTypeOptions] = await Promise.all([
+  const {id} = await params;
+
+  const [project, transactions, expenseTypeOptions, attachments] = await Promise.all([
     getProjectDetails(id),
     getProjectTransactions(id),
     getExpenseTypeOptions(),
+    getProjectAttachments(id),
   ]);
 
-  // console.log(project, transactions);
-
-  if (!project) {
-    notFound();
-  }
-
-  // const transactions = await getProjectTransactions(id);
-  // const expenseTypeOptions = await getExpenseTypeOptions();
   return (
     <ProjectDetailsWrapper
-      transactions={transactions}
       project={project}
+      transactions={transactions}
       id={id}
       expenseTypeOptions={expenseTypeOptions}
+      attachments={attachments}
     />
   );
 }

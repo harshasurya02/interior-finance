@@ -4,6 +4,7 @@ import type { Transaction } from "@/types/project";
 import type { Project } from "@/types/project";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ProjectSummaryProps {
   project: Project;
@@ -102,30 +103,32 @@ export default function ProjectSummary({
           <CardTitle>Expense Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            {expensePercentages.map(({ type, amount, percentage }) => (
-              <div key={type} className="space-y-2">
-                <div className="flex justify-between">
-                  <div className="font-medium">{type}</div>
-                  <div className="text-muted-foreground">
-                    {formatCurrency(amount)}
+          <ScrollArea className="h-[300px]">
+            <div className="space-y-6 pr-4">
+              {expensePercentages.map(({ type, amount, percentage }) => (
+                <div key={type} className="space-y-2">
+                  <div className="flex justify-between">
+                    <div className="font-medium">{type}</div>
+                    <div className="text-muted-foreground">
+                      {formatCurrency(amount)}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Progress value={percentage} className="h-2" />
+                    <span className="text-xs text-muted-foreground w-12 text-right">
+                      {percentage}%
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Progress value={percentage} className="h-2" />
-                  <span className="text-xs text-muted-foreground w-12 text-right">
-                    {percentage}%
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
 
-            {expensePercentages.length === 0 && (
-              <div className="text-center py-6 text-muted-foreground">
-                No expense data available
-              </div>
-            )}
-          </div>
+              {expensePercentages.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground">
+                  No expense data available
+                </div>
+              )}
+            </div>
+          </ScrollArea>
         </CardContent>
       </Card>
 

@@ -161,7 +161,7 @@ export default function TransactionTimeline({
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[500px] pr-4">
+          <ScrollArea className="h-[950px] pr-4">
             {filteredTransactions.length > 0 ? (
               <div className="space-y-8">
                 {filteredTransactions.map(

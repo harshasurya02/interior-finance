@@ -9,6 +9,7 @@ import ProjectSummary from "./project-summary";
 import { Transaction } from "@/types/project";
 import TransactionDialog from "./transaction-dialog";
 import { useRouter } from "next/navigation";
+import { logout } from "@/lib/actions/logout";
 
 export default function ProjectDetailsWrapper({
   project,
@@ -35,21 +36,33 @@ export default function ProjectDetailsWrapper({
     router.back();
   }
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          {/* <Link href="/projects"> */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="mb-6 cursor-pointer"
-            onClick={handleBackTransition}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Projects
-          </Button>
-          {/* </Link> */}
+          <div className="flex justify-between items-center mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              onClick={handleBackTransition}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Projects
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </div>
 
           <ProjectHeader project={project} />
         </div>
